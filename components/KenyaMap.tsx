@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -125,20 +125,6 @@ interface KenyaMapProps {
 }
 
 function KenyaMapInner({ selectedId, onSelect }: KenyaMapProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="h-full w-full grid place-items-center text-white/50 text-xs">
-        Initializing map…
-      </div>
-    );
-  }
-
   return (
     <div className="relative h-full w-full">
       <MapContainer

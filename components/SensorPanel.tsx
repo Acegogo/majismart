@@ -151,15 +151,18 @@ export default function SensorPanel() {
 
   useEffect(() => {
     if (tick === 0) return;
-    setSensors((prev) =>
-      prev.map((s) => {
-        const v = jitter(s);
-        const status = computeStatus(s, v);
-        let unit = s.unit;
-        if (s.metric === "pump") unit = v === 1 ? "ON" : "OFF";
-        return { ...s, value: v, unit, status };
-      })
-    );
+    const id = requestAnimationFrame(() => {
+      setSensors((prev) =>
+        prev.map((s) => {
+          const v = jitter(s);
+          const status = computeStatus(s, v);
+          let unit = s.unit;
+          if (s.metric === "pump") unit = v === 1 ? "ON" : "OFF";
+          return { ...s, value: v, unit, status };
+        })
+      );
+    });
+    return () => cancelAnimationFrame(id);
   }, [tick]);
 
   return (

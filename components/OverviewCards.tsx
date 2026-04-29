@@ -183,15 +183,18 @@ export default function OverviewCards() {
 
   useEffect(() => {
     if (tick === 0) return;
-    setValues((prev) =>
-      prev.map((_, i) => {
-        const cfg = INITIAL[i];
-        if (cfg.jitter === 0) return cfg.base;
-        const delta = (Math.random() - 0.5) * cfg.jitter * 2;
-        const next = cfg.base + delta;
-        return Math.max(0, next);
-      })
-    );
+    const id = requestAnimationFrame(() => {
+      setValues((prev) =>
+        prev.map((_, i) => {
+          const cfg = INITIAL[i];
+          if (cfg.jitter === 0) return cfg.base;
+          const delta = (Math.random() - 0.5) * cfg.jitter * 2;
+          const next = cfg.base + delta;
+          return Math.max(0, next);
+        })
+      );
+    });
+    return () => cancelAnimationFrame(id);
   }, [tick]);
 
   return (
