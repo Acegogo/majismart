@@ -68,8 +68,8 @@ cards, gradient buttons, and animated counters throughout.
 
 Branding assets are bundled in `/public`:
 
-- `majismart logo.png` — left of the header
-- `caledonia heights logo.png` — right of the header (subtle "Powered by")
+- `majismart-logo.png` — left of the header
+- `caledonia-logo.png` — right of the header (subtle "Powered by")
 
 A live-system pulse badge in the header confirms operational status.
 

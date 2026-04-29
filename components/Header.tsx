@@ -46,7 +46,7 @@ export default function Header() {
           <div className="relative shrink-0">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[rgba(0,229,255,0.18)] to-[rgba(0,255,136,0.10)] border border-[rgba(0,229,255,0.45)] shadow-glow overflow-hidden transition-all duration-300 hover:shadow-glowStrong hover:scale-[1.03]">
               <Image
-                src="/majismart%20logo.png"
+                src="/majismart-logo.png"
                 alt="MAJISMART"
                 width={48}
                 height={48}
@@ -110,7 +110,7 @@ export default function Header() {
               title="Caledonia Heights"
             >
               <Image
-                src="/caledonia%20heights%20logo.png"
+                src="/caledonia-logo.png"
                 alt="Caledonia Heights"
                 width={40}
                 height={40}
