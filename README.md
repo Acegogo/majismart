@@ -1,0 +1,2 @@
+# majismart
+smart irrigation app
