@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  memo,
+  useMemo,
+} from "react";
+import {
   ResponsiveContainer,
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -19,14 +22,13 @@ import { DAILY_USAGE, REGIONS } from "@/lib/mockData";
 import { TrendingUp } from "lucide-react";
 
 const tooltipStyle = {
-  background: "rgba(11, 20, 38, 0.95)",
+  background: "rgba(11, 20, 38, 0.97)",
   border: "1px solid rgba(0, 229, 255, 0.35)",
   borderRadius: 12,
   fontSize: 12,
   padding: "10px 12px",
   color: "#e6f1ff",
-  boxShadow: "0 0 24px rgba(0, 229, 255, 0.18)",
-  backdropFilter: "blur(8px)",
+  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35)",
 };
 
 const COLOR_FOR_STATUS: Record<string, string> = {
@@ -35,13 +37,19 @@ const COLOR_FOR_STATUS: Record<string, string> = {
   critical: "#FF4D4D",
 };
 
-export default function WaterCharts() {
-  const regionData = REGIONS.map((r) => ({
-    name: r.name.split(" ")[0],
-    usage: Math.round(r.waterUsage / 1000),
-    efficiency: r.efficiency,
-    color: COLOR_FOR_STATUS[r.status] || "#00E5FF",
-  }));
+function WaterChartsInner() {
+  const dailyData = useMemo(() => DAILY_USAGE, []);
+
+  const regionData = useMemo(
+    () =>
+      REGIONS.map((r) => ({
+        name: r.name.split(" ")[0],
+        usage: Math.round(r.waterUsage / 1000),
+        efficiency: r.efficiency,
+        color: COLOR_FOR_STATUS[r.status] || "#00E5FF",
+      })),
+    []
+  );
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
@@ -56,8 +64,11 @@ export default function WaterCharts() {
           </div>
         </div>
         <div className="panel-body h-[280px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={DAILY_USAGE} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" debounce={50}>
+            <ComposedChart
+              data={dailyData}
+              margin={{ top: 8, right: 12, left: -10, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="useGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00E5FF" stopOpacity={0.65} />
@@ -87,7 +98,10 @@ export default function WaterCharts() {
               />
               <Tooltip
                 contentStyle={tooltipStyle}
-                cursor={{ stroke: "rgba(0, 229, 255, 0.5)", strokeDasharray: "3 3" }}
+                cursor={{
+                  stroke: "rgba(0, 229, 255, 0.5)",
+                  strokeDasharray: "3 3",
+                }}
                 formatter={(v: number, n: string) => [
                   `${v.toLocaleString()} k m³`,
                   n === "consumption" ? "Consumption" : "Target",
@@ -103,8 +117,19 @@ export default function WaterCharts() {
                 stroke="url(#useStroke)"
                 strokeWidth={2.5}
                 fill="url(#useGrad)"
-                dot={{ r: 3, stroke: "#00E5FF", strokeWidth: 2, fill: "#0B1426" }}
-                activeDot={{ r: 6, stroke: "#00FF88", strokeWidth: 2, fill: "#0B1426" }}
+                isAnimationActive={false}
+                dot={{
+                  r: 3,
+                  stroke: "#00E5FF",
+                  strokeWidth: 2,
+                  fill: "#0B1426",
+                }}
+                activeDot={{
+                  r: 5,
+                  stroke: "#00FF88",
+                  strokeWidth: 2,
+                  fill: "#0B1426",
+                }}
                 name="Consumption"
               />
               <Line
@@ -114,6 +139,7 @@ export default function WaterCharts() {
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
                 dot={false}
+                isAnimationActive={false}
                 name="Target"
               />
             </ComposedChart>
@@ -132,8 +158,11 @@ export default function WaterCharts() {
           </div>
         </div>
         <div className="panel-body h-[280px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={regionData} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" debounce={50}>
+            <BarChart
+              data={regionData}
+              margin={{ top: 8, right: 12, left: -10, bottom: 0 }}
+            >
               <defs>
                 {regionData.map((d, i) => (
                   <linearGradient
@@ -169,7 +198,12 @@ export default function WaterCharts() {
                 cursor={{ fill: "rgba(0, 229, 255, 0.06)" }}
                 formatter={(v: number) => [`${v} k m³`, "Usage"]}
               />
-              <Bar dataKey="usage" radius={[8, 8, 0, 0]} maxBarSize={64}>
+              <Bar
+                dataKey="usage"
+                radius={[8, 8, 0, 0]}
+                maxBarSize={64}
+                isAnimationActive={false}
+              >
                 {regionData.map((d, i) => (
                   <Cell
                     key={i}
@@ -187,3 +221,5 @@ export default function WaterCharts() {
     </div>
   );
 }
+
+export default memo(WaterChartsInner);

@@ -14,9 +14,9 @@ export default function HomePage() {
       <Header />
 
       <main className="relative flex-1">
-        <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none animate-gridShift" />
+        <div className="absolute inset-0 grid-bg opacity-25 pointer-events-none" />
         <div className="absolute inset-0 pointer-events-none">
-          <div className="aurora animate-auroraDrift" />
+          <div className="aurora" />
         </div>
         <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-4">
           {/* Section title */}

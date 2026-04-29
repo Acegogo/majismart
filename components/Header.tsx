@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Activity, ShieldCheck, Wifi } from "lucide-react";
+import { memo, useEffect, useState } from "react";
 
 const formatTime = (d: Date) =>
   d.toLocaleTimeString("en-GB", {
@@ -20,7 +20,8 @@ const formatDate = (d: Date) =>
     year: "numeric",
   });
 
-export default function Header() {
+/** Isolated 1s clock — avoids re-rendering logos on every second. */
+const HeaderClock = memo(function HeaderClock() {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -30,8 +31,21 @@ export default function Header() {
   }, []);
 
   return (
+    <div className="hidden md:flex flex-col items-end font-mono leading-tight">
+      <span className="text-sm text-[#00E5FF] tabular-nums drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">
+        {now ? formatTime(now) : "--:--:--"}
+      </span>
+      <span className="text-[10px] uppercase tracking-widest text-white/55">
+        {now ? formatDate(now) : ""}
+      </span>
+    </div>
+  );
+});
+
+export default memo(function Header() {
+  return (
     <header className="relative border-b border-[rgba(0,229,255,0.18)]">
-      <div className="absolute inset-0 grid-bg opacity-50 pointer-events-none animate-gridShift" />
+      <div className="absolute inset-0 grid-bg opacity-50 pointer-events-none" />
       <div
         className="absolute inset-x-0 -bottom-px h-px pointer-events-none"
         style={{
@@ -41,7 +55,6 @@ export default function Header() {
       />
 
       <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        {/* Left: MAJISMART branding */}
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[rgba(0,229,255,0.18)] to-[rgba(0,255,136,0.10)] border border-[rgba(0,229,255,0.45)] shadow-glow overflow-hidden transition-all duration-300 hover:shadow-glowStrong hover:scale-[1.03]">
@@ -50,6 +63,7 @@ export default function Header() {
                 alt="MAJISMART"
                 width={48}
                 height={48}
+                sizes="(max-width: 768px) 64px, 96px"
                 className="w-full h-full object-contain p-1"
                 priority
               />
@@ -73,7 +87,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Right: status + clock + Caledonia */}
         <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
           <div className="flex items-center gap-2 text-xs text-white/80 transition-all duration-300 hover:text-white">
             <ShieldCheck className="w-4 h-4 text-[#00FF88]" />
@@ -88,14 +101,7 @@ export default function Header() {
             <Activity className="w-4 h-4 text-[#FFC857]" />
             <span>Load 42%</span>
           </div>
-          <div className="hidden md:flex flex-col items-end font-mono leading-tight">
-            <span className="text-sm text-[#00E5FF] tabular-nums drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">
-              {now ? formatTime(now) : "--:--:--"}
-            </span>
-            <span className="text-[10px] uppercase tracking-widest text-white/55">
-              {now ? formatDate(now) : ""}
-            </span>
-          </div>
+          <HeaderClock />
           <div className="flex items-center gap-2 pl-3 sm:pl-5 border-l border-[rgba(0,229,255,0.20)]">
             <div className="text-right">
               <div className="text-[10px] uppercase tracking-widest text-white/55">
@@ -114,7 +120,9 @@ export default function Header() {
                 alt="Caledonia Heights"
                 width={40}
                 height={40}
+                sizes="(max-width: 768px) 48px, 80px"
                 className="w-full h-full object-contain p-1"
+                priority
               />
             </div>
           </div>
@@ -122,4 +130,4 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});

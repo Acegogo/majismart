@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import { REGIONS, RegionStatus } from "@/lib/mockData";
+import { memo, useCallback, useMemo, useState } from "react";
+import { REGIONS, type RegionStatus } from "@/lib/mockData";
 import { MapPin, Droplet, Leaf, Activity } from "lucide-react";
 
 const KenyaMap = dynamic(() => import("./KenyaMap"), {
@@ -30,8 +30,19 @@ const statusBadge = (s: RegionStatus) =>
 
 export default function MapPanel() {
   const [selectedId, setSelectedId] = useState<string | null>("mwea");
-  const selected =
-    REGIONS.find((r) => r.id === selectedId) ?? REGIONS[0];
+  const selected = useMemo(
+    () => REGIONS.find((r) => r.id === selectedId) ?? REGIONS[0],
+    [selectedId]
+  );
+
+  const handleSelect = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
+
+  const otherSites = useMemo(
+    () => REGIONS.filter((r) => r.id !== selected.id),
+    [selected.id]
+  );
 
   return (
     <div className="panel h-full">
@@ -46,7 +57,7 @@ export default function MapPanel() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3 p-3">
         <div className="relative h-[420px] lg:h-[500px] rounded-xl overflow-hidden border border-white/5">
-          <KenyaMap selectedId={selectedId} onSelect={setSelectedId} />
+          <KenyaMap selectedId={selectedId} onSelect={handleSelect} />
         </div>
         <div className="flex flex-col gap-3">
           <div className="rounded-xl border border-[rgba(0,229,255,0.18)] bg-gradient-to-br from-[rgba(0,229,255,0.06)] to-transparent p-3 shadow-glow">
@@ -106,7 +117,7 @@ export default function MapPanel() {
               </span>
             </div>
             <div className="mt-2 flex flex-col gap-1">
-              {REGIONS.filter((r) => r.id !== selected.id).map((r) => (
+              {otherSites.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => setSelectedId(r.id)}
@@ -137,7 +148,7 @@ export default function MapPanel() {
   );
 }
 
-function Stat({
+const Stat = memo(function Stat({
   icon,
   label,
   value,
@@ -160,4 +171,4 @@ function Stat({
       {hint && <div className="text-[10px] text-white/45">{hint}</div>}
     </div>
   );
-}
+});

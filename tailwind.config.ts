@@ -34,13 +34,13 @@ const config: Config = {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 20px rgba(0, 229, 255, 0.2)",
-        glowStrong: "0 0 28px rgba(0, 229, 255, 0.35)",
-        glowGreen: "0 0 20px rgba(0, 255, 136, 0.25)",
-        glowWarn: "0 0 20px rgba(255, 200, 87, 0.25)",
-        glowDanger: "0 0 20px rgba(255, 77, 77, 0.3)",
+        glow: "0 4px 14px rgba(0, 229, 255, 0.12)",
+        glowStrong: "0 6px 20px rgba(0, 229, 255, 0.2)",
+        glowGreen: "0 4px 14px rgba(0, 255, 136, 0.12)",
+        glowWarn: "0 4px 14px rgba(255, 200, 87, 0.12)",
+        glowDanger: "0 4px 14px rgba(255, 77, 77, 0.14)",
         panel:
-          "0 0 0 1px rgba(0, 229, 255, 0.08) inset, 0 8px 32px -16px rgba(0, 229, 255, 0.18), 0 24px 60px -32px rgba(0, 0, 0, 0.7)",
+          "0 0 0 1px rgba(0, 229, 255, 0.06) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.55)",
       },
       keyframes: {
         pulseRing: {

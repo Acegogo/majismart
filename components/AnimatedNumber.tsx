@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 
 interface AnimatedNumberProps {
   value: number;
@@ -16,29 +16,39 @@ const formatNumber = (n: number, decimals: number) => {
   return Math.round(n).toLocaleString("en-US");
 };
 
-export default function AnimatedNumber({
+function AnimatedNumberInner({
   value,
   decimals = 0,
-  duration = 900,
+  duration = 550,
   prefix = "",
   suffix = "",
   className = "",
 }: AnimatedNumberProps) {
   const [display, setDisplay] = useState(value);
+  const displayRef = useRef(value);
+  const fromRef = useRef(value);
   const startRef = useRef<number | null>(null);
-  const fromRef = useRef<number>(value);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    fromRef.current = display;
+    fromRef.current = displayRef.current;
     startRef.current = null;
+
+    const delta = Math.abs(value - fromRef.current);
+    const ms =
+      delta < 0.01
+        ? Math.min(duration, 280)
+        : delta > 50
+          ? duration
+          : Math.round(duration * 0.65);
 
     const tick = (t: number) => {
       if (startRef.current === null) startRef.current = t;
       const elapsed = t - startRef.current;
-      const progress = Math.min(1, elapsed / duration);
+      const progress = Math.min(1, elapsed / ms);
       const eased = 1 - Math.pow(1 - progress, 3);
       const next = fromRef.current + (value - fromRef.current) * eased;
+      displayRef.current = next;
       setDisplay(next);
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(tick);
@@ -49,7 +59,6 @@ export default function AnimatedNumber({
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, duration]);
 
   return (
@@ -60,3 +69,5 @@ export default function AnimatedNumber({
     </span>
   );
 }
+
+export default memo(AnimatedNumberInner);

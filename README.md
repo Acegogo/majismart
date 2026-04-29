@@ -60,8 +60,8 @@ The UI is built on a bright, high-tech control-center palette:
 | Warning           | `#FFC857` | Cautions, mid-tier alerts              |
 | Danger            | `#FF4D4D` | Critical alerts, failures              |
 
-Visual effects: glassmorphic panels, animated grid backdrop, aurora glow
-layer, pulsing map markers, blinking critical indicators, hover-glow on KPI
+Visual effects: gradient panels, grid backdrop, aurora glow layer,
+map marker halos, blinking critical indicators, hover accents on KPI
 cards, gradient buttons, and animated counters throughout.
 
 ## Branding
@@ -73,10 +73,20 @@ Branding assets are bundled in `/public`:
 
 A live-system pulse badge in the header confirms operational status.
 
+## Performance
+
+The dashboard is tuned for smooth scrolling and low main-thread work:
+
+- One **7 s** simulation timer drives KPI and sensor updates (not multiple overlapping intervals).
+- Charts use **memoized static data** and **Recharts animations disabled** so they paint once.
+- **Leaflet markers** use module-scoped icons and `React.memo` so selection changes do not rebuild markers.
+- **Header clock** is isolated so logos do not re-render every second.
+- **Panels** use opaque gradients instead of `backdrop-filter: blur()` (major scroll bottleneck on large pages).
+
 ## Data
 
 All simulated data lives in `lib/mockData.ts`. Real-time updates are produced
-purely on the client with `setInterval` (~3.5 s cadence) and
+purely on the client with a **shared 7 s simulation tick** (single `setInterval`) and
 `requestAnimationFrame`-driven counters.
 
 ## Deployment

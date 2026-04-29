@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ALERTS, Alert } from "@/lib/mockData";
 import { AlertTriangle, AlertOctagon, Info, BellRing } from "lucide-react";
 
@@ -41,12 +41,6 @@ const tone = (s: Alert["severity"]) => {
 
 export default function AlertsPanel() {
   const [acked, setAcked] = useState<Set<string>>(new Set());
-  const [pulse, setPulse] = useState(0);
-
-  useEffect(() => {
-    const t = setInterval(() => setPulse((p) => p + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
 
   const open = ALERTS.filter((a) => !acked.has(a.id));
   const critCount = open.filter((a) => a.severity === "critical").length;

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Droplets, Layers, Gauge, Siren } from "lucide-react";
 import AnimatedNumber from "./AnimatedNumber";
+import { useSimulationTick } from "@/lib/SimulationTickContext";
 
 interface CardConfig {
   id: string;
@@ -122,72 +123,82 @@ const INITIAL: CardConfig[] = [
   },
 ];
 
+const OverviewCardItem = memo(function OverviewCardItem({
+  cfg,
+  value,
+}: {
+  cfg: CardConfig;
+  value: number;
+}) {
+  const A = ACCENTS[cfg.accent];
+  const trendUp = cfg.trend === "up";
+  const trendFlat = cfg.trend === "flat";
+
+  return (
+    <div
+      className={`panel scan-bar lift-card overflow-hidden transition-all duration-300 ${A.glow} ${A.border}`}
+    >
+      <div className={`absolute inset-0 pointer-events-none ${A.gradient}`} />
+      <div className="panel-body relative">
+        <div className="flex items-start justify-between">
+          <div
+            className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br border ${A.iconBg} ${A.iconBorder} ${A.text} shadow-glow`}
+          >
+            {cfg.icon}
+          </div>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${A.chip}`}
+          >
+            {trendFlat ? "—" : trendUp ? "▲" : "▼"} {Math.abs(cfg.delta)}
+            {cfg.id === "schemes" || cfg.id === "alerts" ? "" : "%"}
+          </span>
+        </div>
+        <div className="mt-3 text-[11px] uppercase tracking-widest text-white/65">
+          {cfg.label}
+        </div>
+        <div className="mt-1 font-mono text-3xl font-semibold tracking-tight tabular-nums">
+          <AnimatedNumber
+            value={value}
+            decimals={cfg.decimals}
+            suffix={cfg.suffix ? ` ${cfg.suffix}` : ""}
+            className={`${A.text} drop-shadow-[0_0_14px_currentColor]`}
+          />
+        </div>
+        <div className="mt-2 text-[11px] text-white/55">
+          {cfg.id === "water" && "Cumulative — last 24 h, all schemes"}
+          {cfg.id === "schemes" && "Across 14 counties"}
+          {cfg.id === "efficiency" && "Weighted national average"}
+          {cfg.id === "alerts" && "Open across the network"}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function OverviewCards() {
-  const [values, setValues] = useState<number[]>(INITIAL.map((c) => c.base));
+  const tick = useSimulationTick();
+  const [values, setValues] = useState<number[]>(() =>
+    INITIAL.map((c) => c.base)
+  );
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setValues((prev) =>
-        prev.map((_, i) => {
-          const cfg = INITIAL[i];
-          if (cfg.jitter === 0) return cfg.base;
-          const delta = (Math.random() - 0.5) * cfg.jitter * 2;
-          const next = cfg.base + delta;
-          return Math.max(0, next);
-        })
-      );
-    }, 3500);
-    return () => clearInterval(t);
-  }, []);
+    if (tick === 0) return;
+    setValues((prev) =>
+      prev.map((_, i) => {
+        const cfg = INITIAL[i];
+        if (cfg.jitter === 0) return cfg.base;
+        const delta = (Math.random() - 0.5) * cfg.jitter * 2;
+        const next = cfg.base + delta;
+        return Math.max(0, next);
+      })
+    );
+  }, [tick]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      {INITIAL.map((cfg, idx) => {
-        const A = ACCENTS[cfg.accent];
-        const trendUp = cfg.trend === "up";
-        const trendFlat = cfg.trend === "flat";
-        return (
-          <div
-            key={cfg.id}
-            className={`panel scan-bar lift-card overflow-hidden transition-all duration-300 ${A.glow} ${A.border}`}
-          >
-            <div className={`absolute inset-0 pointer-events-none ${A.gradient}`} />
-            <div className="panel-body relative">
-              <div className="flex items-start justify-between">
-                <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br border ${A.iconBg} ${A.iconBorder} ${A.text} shadow-glow`}
-                >
-                  {cfg.icon}
-                </div>
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${A.chip}`}
-                >
-                  {trendFlat ? "—" : trendUp ? "▲" : "▼"}{" "}
-                  {Math.abs(cfg.delta)}
-                  {cfg.id === "schemes" || cfg.id === "alerts" ? "" : "%"}
-                </span>
-              </div>
-              <div className="mt-3 text-[11px] uppercase tracking-widest text-white/65">
-                {cfg.label}
-              </div>
-              <div className="mt-1 font-mono text-3xl font-semibold tracking-tight tabular-nums">
-                <AnimatedNumber
-                  value={values[idx]}
-                  decimals={cfg.decimals}
-                  suffix={cfg.suffix ? ` ${cfg.suffix}` : ""}
-                  className={`${A.text} drop-shadow-[0_0_14px_currentColor]`}
-                />
-              </div>
-              <div className="mt-2 text-[11px] text-white/55">
-                {cfg.id === "water" && "Cumulative — last 24 h, all schemes"}
-                {cfg.id === "schemes" && "Across 14 counties"}
-                {cfg.id === "efficiency" && "Weighted national average"}
-                {cfg.id === "alerts" && "Open across the network"}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {INITIAL.map((cfg, idx) => (
+        <OverviewCardItem key={cfg.id} cfg={cfg} value={values[idx]} />
+      ))}
     </div>
   );
 }
